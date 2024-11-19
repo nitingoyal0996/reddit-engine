@@ -55,4 +55,21 @@ func main() {
 			}
 		}
 	}
+	loginFuture := system.Root.RequestFuture(pid, &messages.LoginRequest{
+		Username: "nitingoyal0996",
+		Password: "password",
+	}, 5*time.Second)
+
+	loginResponse, err := loginFuture.Result()
+	if err != nil {
+		log.Fatalf("failed to login user: %v", err)
+	} else {
+		if loginResponse, ok := loginResponse.(*messages.LoginResponse); ok {
+			if loginResponse.Error != "" {
+				log.Fatalf("Login failed: %v", loginResponse.Error)
+			} else {
+				fmt.Printf("User logged in. Token: %s\n", loginResponse.Token)
+			}
+		}
+	}
 }
