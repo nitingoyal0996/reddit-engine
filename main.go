@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/router"
 	"github.com/nitingoyal0996/reddit-clone/actors"
 	"github.com/nitingoyal0996/reddit-clone/database"
 	"github.com/nitingoyal0996/reddit-clone/messages"
@@ -28,16 +29,13 @@ func main() {
 	print("Database initialized.\n")
 
 	system := actor.NewActorSystem()
-
 	userRepo := repositories.NewUserRepository(db)
-	
-	authProps := actor.PropsFromProducer(func() actor.Actor{
+	authProducer := func() actor.Actor {
 		return actors.NewAuthActor(userRepo, "chandukechacha")
-	})
+	}
+	authPoolProps := router.NewRoundRobinPool(5, actor.WithProducer(authProducer))
+	pid := system.Root.Spawn(authPoolProps)
 
-	// Simulation
-	// Spawn the auth actor
-	pid := system.Root.Spawn(authProps)
 	registerFuture := system.Root.RequestFuture(pid, &messages.RegisterRequest{
 		Username: "nitingoyal0996",
 		Email: "nitin.goyal@gmail.com",
