@@ -1,1 +1,7 @@
 archive
+*.db
+reddit-clone
+Problem.md
+systemdesign.md
+.DS_Store
+*.code-workspace
