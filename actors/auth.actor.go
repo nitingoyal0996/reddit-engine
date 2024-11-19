@@ -43,7 +43,3 @@ func (auth *AuthActor) Receive(context actor.Context) {
 	}
 
 }
-
-// Register
-// ValidateToken
-// Login > GenerateToken
