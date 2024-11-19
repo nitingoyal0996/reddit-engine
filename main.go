@@ -35,7 +35,7 @@ func main() {
 	// initialize data layer
 	userRepo := repositories.NewUserRepository(db)
 	authProps := actor.PropsFromProducer(func() actor.Actor {
-		// jwt-secret = ChanduKeChacha
+		// jwt-secret = chanduKeChacha
         return actors.NewAuthActor(userRepo, "chanduKeChacha")
     })
     registrationActorPID = rootContext.Spawn(authProps)
@@ -45,8 +45,8 @@ func main() {
 	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		handlers.RegisterHandler(w, r, rootContext, registrationActorPID)
 	})
-	// http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-	// 	handlers.LoginHandler(w, r, rootContext, registrationActorPID)
-	// })
+	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		handlers.LoginHandler(w, r, rootContext, registrationActorPID)
+	})
     http.ListenAndServe(":8080", nil)
 }
