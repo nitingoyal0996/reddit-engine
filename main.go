@@ -23,11 +23,11 @@ func main() {
 	// initialize database
 	db, err := database.InitDB()
 	if err != nil {
-		fmt.Println("failed to initialize database: %v", err)
+		fmt.Printf("failed to initialize database: %v\n", err)
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
-		fmt.Println("failed to get database connection: %v", err)
+		fmt.Printf("failed to get database connection: %v\n", err)
 	}
 	defer sqlDB.Close()
 	fmt.Println("Database initialized.")
