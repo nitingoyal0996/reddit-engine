@@ -78,7 +78,7 @@ func (r *SqliteUserRepository) CheckPassword(username string, password string) (
 	return user, nil
 }
 
-func (r *SqliteUserRepository) IncrementKarma(userId uint, amount int) error {
+func (r *SqliteUserRepository) UpdateKarma(userId uint, amount int) error {
 	return r.db.Model(models.User{}).
 			Where("ID = ?", userId).
 			Update("karma", gorm.Expr("karma + ?", amount)).

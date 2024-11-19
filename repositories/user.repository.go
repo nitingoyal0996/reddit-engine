@@ -9,5 +9,5 @@ type UserRepository interface {
 	Update(user *models.User) error
 	Delete(id uint) error
 	CheckPassword(username string, password string) (*models.User, error)
-	IncrementKarma(userId uint, amount int) error
+	UpdateKarma(userId uint, amount int) error
 }
