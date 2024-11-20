@@ -39,6 +39,11 @@ func main() {
         return actors.NewAuthActor(userRepo, "chanduKeChacha")
     })
     registrationActorPID = rootContext.Spawn(authProps)
+
+	karmaProps := actor.PropsFromProducer(func() actor.Actor {
+		return actors.NewKarmaActor(userRepo, registrationActorPID, rootContext)
+	})
+	karmaActorPID := rootContext.Spawn(karmaProps)
 	// ... more actors may be added below
 
 	// handlers to serve actors with http requests
@@ -47,6 +52,10 @@ func main() {
 	})
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		handlers.LoginHandler(w, r, rootContext, registrationActorPID)
+	})
+
+	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
+		handlers.KarmaHandler(w, r, rootContext, karmaActorPID)
 	})
     http.ListenAndServe(":8080", nil)
 }
