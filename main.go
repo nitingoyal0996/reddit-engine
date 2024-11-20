@@ -3,20 +3,19 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/cluster"
+	"github.com/asynkron/protoactor-go/cluster/clusterproviders/automanaged"
+	"github.com/asynkron/protoactor-go/cluster/identitylookup/disthash"
+	"github.com/asynkron/protoactor-go/remote"
 	"github.com/nitingoyal0996/reddit-clone/actors"
 	"github.com/nitingoyal0996/reddit-clone/database"
 	"github.com/nitingoyal0996/reddit-clone/handlers"
 	"github.com/nitingoyal0996/reddit-clone/repositories"
-)
-
-var (
-	system = actor.NewActorSystem()
-    rootContext = system.Root
-    
-    registrationActorPID *actor.PID
-	// .. more actors pid(s) may be added below
 )
 
 func main() {
@@ -34,28 +33,54 @@ func main() {
 
 	// initialize data layer
 	userRepo := repositories.NewUserRepository(db)
+
+	// setup actor system
 	authProps := actor.PropsFromProducer(func() actor.Actor {
-		// jwt-secret = chanduKeChacha
         return actors.NewAuthActor(userRepo, "chanduKeChacha")
     })
-    registrationActorPID = rootContext.Spawn(authProps)
-
 	karmaProps := actor.PropsFromProducer(func() actor.Actor {
-		return actors.NewKarmaActor(userRepo, registrationActorPID, rootContext)
+		return actors.NewKarmaActor(userRepo)
 	})
-	karmaActorPID := rootContext.Spawn(karmaProps)
-	// ... more actors may be added below
+	authKind := cluster.NewKind("Auth", authProps)
+	karmaKind := cluster.NewKind("Karma", karmaProps)
 
-	// handlers to serve actors with http requests
+	// .. add more actor props here
+
+	kinds := []*cluster.Kind{authKind, karmaKind}	// append more kinds here
+	// Distributed hash lookup
+	lookup := disthash.New()
+	
+    // New cluster definition
+	config := remote.Configure("localhost", 8081)
+	provider := automanaged.NewWithConfig(1*time.Second, 6331, "localhost:6331")
+	clusterConfig := cluster.Configure("reddit-cluster", provider, lookup, config, cluster.WithKinds(kinds...))
+	system := actor.NewActorSystem()
+	cluster := cluster.New(system, clusterConfig)
+    cluster.StartMember()
+	// shutdown later
+    defer cluster.Shutdown(true)
+
+	rootContext := system.Root
+	// declare HTTP handler to use cluster instead of actor system
+    handler := handlers.NewHandler(cluster)
+
 	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		handlers.RegisterHandler(w, r, rootContext, registrationActorPID)
+		handler.RegisterHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		handlers.LoginHandler(w, r, rootContext, registrationActorPID)
+		handler.LoginHandler(w, r, rootContext)
 	})
 
 	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
-		handlers.KarmaHandler(w, r, rootContext, karmaActorPID)
+		handler.KarmaHandler(w, r, rootContext)
 	})
+
+	// .. add more handlers here
+
     http.ListenAndServe(":8080", nil)
+
+	// Run till a signal comes
+	finish := make(chan os.Signal, 1)
+	signal.Notify(finish, os.Interrupt, os.Kill)
+	<-finish
 }
