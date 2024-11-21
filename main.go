@@ -74,9 +74,11 @@ func main() {
 	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
 		handler.KarmaHandler(w, r, rootContext)
 	})
+	// http.HandleFunc("/subrepositories", func(w http.ResponseWriter, r *http.Request) {
+	// 	handler.SubHandler(w, r, rootContext)
+	// })
 
 	// .. add more handlers here
-
     http.ListenAndServe(":8080", nil)
 
 	// Run till a signal comes

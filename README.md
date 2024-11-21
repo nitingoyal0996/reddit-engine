@@ -35,3 +35,19 @@ Login User with -
 {"Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSZWRkaXQiLCJleHAiOjE3MzIwNTc1NDksImlhdCI6MTczMjA1NjY0OSwidXNlcl9pZCI6MiwidXNlcm5hbWUiOiJqb2huZG9lIn0.Mu2akAa3Q0b89rl1qkYs99dMCwpnMuZVhieeaigKHAI","Error":""}
 
 ```
+
+Create subreddit with -
+
+```bash
+# request
+curl -X POST http://localhost:8080/subreddit \
+-H "Content-Type: application/json" \
+-d '{
+    "name": "test-reddit",
+    "description": "this is my first",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSZWRkaXQiLCJleHAiOjE3MzIwNTc1NDksImlhdCI6MTczMjA1NjY0OSwidXNlcl9pZCI6MiwidXNlcm5hbWUiOiJqb2huZG9lIn0.Mu2akAa3Q0b89rl1qkYs99dMCwpnMuZVhieeaigKHAI"
+}'
+
+# response
+{"ID":1,"Error":""}
+```
