@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/nitingoyal0996/reddit-engine/engine/proto";
+
+message Claims {
+    uint64 user_id = 1;
+    string username = 2;
+    // JWT standard claims
+    int64 issued_at = 3;
+    int64 expires_at = 4;
+    string issuer = 5;
+    string subject = 6;
+    string audience = 7;
+    string jti = 8;  // JWT ID
+    int64 not_before = 9;
+}
+
+
+// Register messages
+message RegisterRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message RegisterResponse {
+  uint64 id = 1;
+  string username = 2;
+  string error = 3;
+}
+
+// Login messages
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+  string error = 2;
+}
+
+// Token validation messages
+message TokenValidationRequest {
+  string token = 1;
+}
+
+message TokenValidationResponse {
+  bool valid = 1;
+  Claims claims = 2;
+  string error = 3;
+}

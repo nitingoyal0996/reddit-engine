@@ -51,7 +51,7 @@ func main() {
 	lookup := disthash.New()
 	
     // New cluster definition
-	config := remote.Configure("localhost", 8081)
+	config := remote.Configure("127.0.0.1", 8080)
 	provider := automanaged.NewWithConfig(1*time.Second, 6331, "localhost:6331")
 	clusterConfig := cluster.Configure("reddit-cluster", provider, lookup, config, cluster.WithKinds(kinds...))
 	system := actor.NewActorSystem()
@@ -70,16 +70,10 @@ func main() {
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		handler.LoginHandler(w, r, rootContext)
 	})
-
 	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
 		handler.KarmaHandler(w, r, rootContext)
 	})
-	// http.HandleFunc("/subrepositories", func(w http.ResponseWriter, r *http.Request) {
-	// 	handler.SubHandler(w, r, rootContext)
-	// })
-
-	// .. add more handlers here
-    http.ListenAndServe(":8080", nil)
+    http.ListenAndServe(":5678", nil)
 
 	// Run till a signal comes
 	finish := make(chan os.Signal, 1)
