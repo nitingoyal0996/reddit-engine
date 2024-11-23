@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/nitingoyal0996/reddit-engine/engine/proto";
+
+// Messaging Service
+service MessagingService {
+  rpc SendMessage (SendMessageRequest) returns (SendMessageResponse) {}
+  rpc GetMessages (GetMessagesRequest) returns (GetMessagesResponse) {}
+}
+
+// Request to send a message
+message SendMessageRequest {
+  string text = 1;
+  uint64 to_id = 2;
+  string token = 3;
+}
+
+// Response for send message operation
+message SendMessageResponse {
+  string error = 1;
+}
+
+// Request to get messages
+message GetMessagesRequest {
+  string token = 1;
+  uint64 to_id = 2;
+}
+
+// Message model
+message Message {
+  uint64 id = 1;
+  string text = 2;
+  uint64 from_id = 3;
+  uint64 to_id = 4;
+  string created_at = 5;
+}
+
+// Response containing messages
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  string error = 2;
+}

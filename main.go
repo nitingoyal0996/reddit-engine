@@ -33,7 +33,7 @@ func main() {
 
 	// initialize data layer
 	userRepo := repositories.NewUserRepository(db)
-
+	msgRepo := repositories.NewMessageRepository(db)
 	// setup actor system
 	authProps := actor.PropsFromProducer(func() actor.Actor {
         return actors.NewAuthActor(userRepo, "chanduKeChacha")
@@ -41,12 +41,15 @@ func main() {
 	karmaProps := actor.PropsFromProducer(func() actor.Actor {
 		return actors.NewKarmaActor(userRepo)
 	})
+	userProps := actor.PropsFromProducer(func()actor.Actor {
+		return actors.NewUserActor(msgRepo)
+	})
 	authKind := cluster.NewKind("Auth", authProps)
 	karmaKind := cluster.NewKind("Karma", karmaProps)
-
+	userKind := cluster.NewKind("User", userProps)
 	// .. add more actor props here
 
-	kinds := []*cluster.Kind{authKind, karmaKind}	// append more kinds here
+	kinds := []*cluster.Kind{authKind, karmaKind, userKind}	// append more kinds here
 	// Distributed hash lookup
 	lookup := disthash.New()
 	
@@ -73,6 +76,17 @@ func main() {
 	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
 		handler.KarmaHandler(w, r, rootContext)
 	})
+	http.HandleFunc("/user/messages", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Message request received: %s\n", r.Method)
+		if r.Method == http.MethodGet {
+			handler.GetMessagesHandler(w, r, rootContext)
+		} else if r.Method == http.MethodPost {
+			handler.SendMessageHandler(w, r, rootContext)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
     http.ListenAndServe(":5678", nil)
 
 	// Run till a signal comes
