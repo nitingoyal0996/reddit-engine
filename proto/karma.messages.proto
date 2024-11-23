@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/nitingoyal0996/reddit-engine/engine/proto";
+
+// Karma Service
+service KarmaService {
+  rpc UpdateKarma (KarmaRequest) returns (KarmaResponse) {}
+}
+
+// Request message for updating karma
+message KarmaRequest {
+  int32 amount = 1;
+  string token = 2;
+}
+
+// Response message for karma operations
+message KarmaResponse {
+  string error = 1;
+}
