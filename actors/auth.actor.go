@@ -21,6 +21,8 @@ func NewAuthActor(userRepo *repositories.SqliteUserRepository, jwtSecret string)
 
 func (auth *AuthActor) Receive(context actor.Context) {
     msg := context.Message()
+    // print message type
+    fmt.Printf("Received message: %T\n", msg)
     switch actorMsg := msg.(type) {
     case *actor.Started:
         fmt.Println("AuthActor received message")
@@ -63,7 +65,6 @@ func (auth *AuthActor) LoginUser(context actor.Context, actorMsg *proto.LoginReq
     token, err := auth.service.Login(actorMsg.Username, actorMsg.Password)
     if err != nil {
         context.Respond(&proto.LoginResponse{Error: err.Error()})
-        return
     }
     context.Respond(&proto.LoginResponse{Token: token})
 }
@@ -71,15 +72,15 @@ func (auth *AuthActor) LoginUser(context actor.Context, actorMsg *proto.LoginReq
 func (auth *AuthActor) ValidateToken(context actor.Context, actorMsg *proto.TokenValidationRequest) {
     fmt.Println("Validating token")
     claims, err := auth.service.ValidateToken(actorMsg.Token)
-    // jwt to proto claims
-    claimsProto := &proto.Claims{
-        UserId: uint64(claims.UserId),
-        Username: claims.Username,
-        // .. add more fields here
-    }
     if err != nil {
         context.Respond(&proto.TokenValidationResponse{Error: err.Error()})
-        return
+    } else {
+        // jwt to proto claims
+        claimsProto := &proto.Claims{
+            UserId: uint64(claims.UserId),
+            Username: claims.Username,
+            // .. add more fields here
+        }
+        context.Respond(&proto.TokenValidationResponse{Valid: true, Claims: claimsProto})
     }
-    context.Respond(&proto.TokenValidationResponse{Valid: true, Claims: claimsProto})
 }
