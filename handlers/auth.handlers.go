@@ -36,7 +36,7 @@ func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request, rootCo
     }
 
     w.Header().Set("Content-Type", "application/json")
-    if json.NewEncoder(w).Encode(registerResponse); err != nil {
+    if err := json.NewEncoder(w).Encode(registerResponse); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
