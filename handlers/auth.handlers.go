@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/asynkron/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/cluster"
 	"github.com/nitingoyal0996/reddit-clone/proto"
 )
 
@@ -15,17 +17,13 @@ func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request, rootCo
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-    future, err := h.Cluster.RequestFuture("auth", "Auth", &input)
-    if err != nil {
-        http.Error(w, fmt.Sprintf("Failed to send request: %v", err), http.StatusInternalServerError)
-        return
-    }
-    result, err := future.Result()
-    if err != nil {
-        http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)
-        return
-    }
+	authActor := cluster.GetCluster(rootContext.ActorSystem()).Get("auth", "Auth")
+    future := rootContext.RequestFuture(authActor, &input, 5*time.Second)
+	result, err := future.Result()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)
+		return
+	}
 
     registerResponse, ok := result.(*proto.RegisterResponse)
     if !ok {
@@ -52,16 +50,11 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request, rootConte
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	// ID: login and Kind: Auth
-	future, err := h.Cluster.RequestFuture("login", "Auth", &input)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to login user: %v", err), http.StatusInternalServerError)
-		return
-	}
+	authActor := cluster.GetCluster(rootContext.ActorSystem()).Get("auth", "Auth")
+    future := rootContext.RequestFuture(authActor, &input, 5*time.Second)
 	result, err := future.Result()
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to login user: %v", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)
 		return
 	}
 
