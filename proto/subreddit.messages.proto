@@ -1,0 +1,63 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "github.com/nitingoyal0996/reddit-engine/engine/proto";
+
+import "models.proto";
+
+message CreateSubredditRequest {
+    string token = 1;
+    string name = 2;
+    string description = 3;
+    uint64 creator_id = 4;
+}
+
+message CreateSubredditResponse {
+    string error = 1;
+}
+
+message GetSubredditRequest {
+    string token = 1;
+    string name = 2;
+}
+
+message SubscriptionRequest {
+    string token = 1;
+    uint64 user_id = 2;
+    uint64 subreddit_id = 3;
+}
+
+message SubscriptionResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message UnsubscribeRequest {
+    string token = 1;
+    uint64 user_id = 2;
+    uint64 subreddit_id = 3;
+}
+
+message UnsubscribeResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message SearchRequest {
+    string token = 1;
+    string query = 2;
+    int32 limit = 3;
+}
+
+message SearchResponse {
+    repeated Subreddit subreddits = 1;
+}
+
+message GetUserSubscriptionsRequest {
+    string token = 1;
+    uint64 user_id = 2;
+}
+
+message GetUserSubscriptionsResponse {
+    repeated Subreddit subreddits = 1;
+}

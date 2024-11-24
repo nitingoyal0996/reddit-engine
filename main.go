@@ -34,6 +34,7 @@ func main() {
 	// initialize data layer
 	userRepo := repositories.NewUserRepository(db)
 	msgRepo := repositories.NewMessageRepository(db)
+	subRepo := repositories.NewSubredditRepository(db)
 	// setup actor system
 	authProps := actor.PropsFromProducer(func() actor.Actor {
         return actors.NewAuthActor(userRepo, "chanduKeChacha")
@@ -44,12 +45,16 @@ func main() {
 	userProps := actor.PropsFromProducer(func()actor.Actor {
 		return actors.NewUserActor(msgRepo)
 	})
+	subProps := actor.PropsFromProducer(func()actor.Actor {
+		return actors.NewSubredditActor(subRepo)
+	})
 	authKind := cluster.NewKind("Auth", authProps)
 	karmaKind := cluster.NewKind("Karma", karmaProps)
 	userKind := cluster.NewKind("User", userProps)
+	subKind := cluster.NewKind("Subreddit", subProps)
 	// .. add more actor props here
 
-	kinds := []*cluster.Kind{authKind, karmaKind, userKind}	// append more kinds here
+	kinds := []*cluster.Kind{authKind, karmaKind, userKind, subKind}	// append more kinds here
 	// Distributed hash lookup
 	lookup := disthash.New()
 	
@@ -85,6 +90,15 @@ func main() {
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
+	})
+	http.HandleFunc("/user/subreddits", func(w http.ResponseWriter, r *http.Request) {
+		handler.CreateSubredditHandler(w, r, rootContext)
+	})
+	http.HandleFunc("/user/subreddits/subscribe", func(w http.ResponseWriter, r *http.Request) {
+		handler.SubscribeSubredditHandler(w, r, rootContext)
+	})
+	http.HandleFunc("/user/subreddits/unsubscribe", func(w http.ResponseWriter, r *http.Request) {
+		handler.UnsubscribeSubredditHandler(w, r, rootContext)
 	})
 
     http.ListenAndServe(":5678", nil)
