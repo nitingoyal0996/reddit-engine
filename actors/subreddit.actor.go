@@ -60,10 +60,11 @@ func (subreddit *SubredditActor) CreateSubreddit(context actor.Context, actorMsg
 	} else {
 		fmt.Println("Token validated successfully")
 		// create subreddit
-		if err := subreddit.subredditService.CreateSubreddit(&models.Subreddit{Name: actorMsg.Name, Description: actorMsg.Description, CreatorID: actorMsg.CreatorId}); err != nil {
-			context.Respond(&proto.CreateSubredditResponse{Error: err.Error()})
+		if subredditID, err := subreddit.subredditService.CreateSubreddit(&models.Subreddit{Name: actorMsg.Name, Description: actorMsg.Description, CreatorID: actorMsg.CreatorId}); err != nil {
+			context.Respond(&proto.CreateSubredditResponse{Error: err.Error(), SubredditId: 0})
+		} else {
+			context.Respond(&proto.CreateSubredditResponse{Error: "", SubredditId: subredditID})
 		}
-		context.Respond(&proto.CreateSubredditResponse{Error: ""})
 	}
 }
 

@@ -71,5 +71,4 @@ message Comment {
     User author = 9;
     Post post = 10;
     int32 votes = 11;
-
 }

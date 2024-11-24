@@ -14,6 +14,7 @@ message CreateSubredditRequest {
 
 message CreateSubredditResponse {
     string error = 1;
+    uint64 subreddit_id = 2;
 }
 
 message GetSubredditRequest {

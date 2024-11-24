@@ -17,10 +17,10 @@ func NewSubredditRepository(db *gorm.DB) *SqliteSubredditRepository {
 }
 
 // Create a new subreddit
-func (r *SqliteSubredditRepository) CreateSubreddit(subreddit *models.Subreddit) error {
+func (r *SqliteSubredditRepository) CreateSubreddit(subreddit *models.Subreddit) (uint64, error) {
     // PRINT INCOMING DATA WITH FIELDS
     fmt.Printf("CreateSubreddit: %+v\n", subreddit)
-    return r.db.Transaction(func(tx *gorm.DB) error {
+    err := r.db.Transaction(func(tx *gorm.DB) error {
         // Create the subreddit
         if err := tx.Create(subreddit).Error; err != nil {
             return err
@@ -34,6 +34,10 @@ func (r *SqliteSubredditRepository) CreateSubreddit(subreddit *models.Subreddit)
         
         return tx.Create(&subscription).Error
     })
+    if err != nil {
+        return 0, err
+    }
+    return subreddit.ID, nil
 }
 
 // Get subreddit by ID

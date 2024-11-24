@@ -15,7 +15,7 @@ func NewSubredditService(subredditRepo repositories.SubredditRepository) *Subred
 	}
 }
 
-func (s *SubredditService) CreateSubreddit(reddit *models.Subreddit) error {
+func (s *SubredditService) CreateSubreddit(reddit *models.Subreddit) (subredditID uint64, string error) {
 	return s.subredditRepo.CreateSubreddit(reddit)
 }
 
