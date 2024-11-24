@@ -53,7 +53,7 @@ func (karma *KarmaActor) UpdateKarma(context actor.Context, actorMsg *proto.Karm
 	} else {
 		fmt.Println("Token validated successfully")
 		// update karma
-		if err := karma.karmaService.UpdateKarma(uint(validationResponse.Claims.UserId), int(actorMsg.Amount)); err != nil {
+		if err := karma.karmaService.UpdateKarma(uint(actorMsg.UserId), int(actorMsg.Amount)); err != nil {
 			context.Respond(&proto.KarmaResponse{Error: err.Error()})
 		}
 		context.Respond(&proto.KarmaResponse{Error: ""})

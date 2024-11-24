@@ -8,6 +8,7 @@ option go_package = "github.com/nitingoyal0996/reddit-engine/engine/proto";
 message KarmaRequest {
   int32 amount = 1;
   string token = 2;
+  uint64 user_id = 3;
 }
 
 // Response message for karma operations
