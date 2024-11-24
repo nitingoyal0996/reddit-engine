@@ -18,6 +18,7 @@ type Subreddit struct {
 	Subscribers     []User `gorm:"many2many:user_subreddit_subscriptions"`
 	Posts           []Post `gorm:"foreignKey:SubredditID"`
 	SubscriberCount int64  `gorm:"default:0"`
+	PostCount 		int64  `gorm:"default:0"`
 }
 
 // Join table for user subscriptions with additional metadata

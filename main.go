@@ -35,6 +35,7 @@ func main() {
 	userRepo := repositories.NewUserRepository(db)
 	msgRepo := repositories.NewMessageRepository(db)
 	subRepo := repositories.NewSubredditRepository(db)
+	postRepo := repositories.NewPostRepository(db)
 	// setup actor system
 	authProps := actor.PropsFromProducer(func() actor.Actor {
         return actors.NewAuthActor(userRepo, "chanduKeChacha")
@@ -48,13 +49,18 @@ func main() {
 	subProps := actor.PropsFromProducer(func()actor.Actor {
 		return actors.NewSubredditActor(subRepo)
 	})
+	postProps := actor.PropsFromProducer(func()actor.Actor {
+		return actors.NewPostActor(postRepo)
+	})
+	// .. add more actor props here
 	authKind := cluster.NewKind("Auth", authProps)
 	karmaKind := cluster.NewKind("Karma", karmaProps)
 	userKind := cluster.NewKind("User", userProps)
 	subKind := cluster.NewKind("Subreddit", subProps)
+	postKind := cluster.NewKind("Post", postProps)
 	// .. add more actor props here
 
-	kinds := []*cluster.Kind{authKind, karmaKind, userKind, subKind}	// append more kinds here
+	kinds := []*cluster.Kind{authKind, karmaKind, userKind, subKind, postKind}	// append more kinds here
 	// Distributed hash lookup
 	lookup := disthash.New()
 	
@@ -100,6 +106,20 @@ func main() {
 	http.HandleFunc("/user/subreddits/unsubscribe", func(w http.ResponseWriter, r *http.Request) {
 		handler.UnsubscribeSubredditHandler(w, r, rootContext)
 	})
+
+	http.HandleFunc("/post/create", func(w http.ResponseWriter, r *http.Request) {
+		handler.CreatePostHandler(w, r, rootContext)
+	})
+	http.HandleFunc("/post/get", func(w http.ResponseWriter, r *http.Request) {
+		handler.GetPostHandler(w, r, rootContext)
+	})
+	http.HandleFunc("/post/get/user", func(w http.ResponseWriter, r *http.Request) {
+		handler.GetPostsByUserHandler(w, r, rootContext)
+	})
+	http.HandleFunc("/post/get/subreddit", func(w http.ResponseWriter, r *http.Request) {
+		handler.GetPostsBySubredditHandler(w, r, rootContext)
+	})
+
 
     http.ListenAndServe(":5678", nil)
 

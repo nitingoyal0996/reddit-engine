@@ -25,6 +25,7 @@ message Subreddit {
     int64 subscriber_count = 5;
     google.protobuf.Timestamp created_at = 7;
     User creator = 9;
+    int64 post_count = 10;
 }
 
 message UserSubredditSubscription {
