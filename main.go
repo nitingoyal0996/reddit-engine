@@ -119,6 +119,9 @@ func main() {
 	http.HandleFunc("/post/get/subreddit", func(w http.ResponseWriter, r *http.Request) {
 		handler.GetPostsBySubredditHandler(w, r, rootContext)
 	})
+	http.HandleFunc("/post/upvote", func(w http.ResponseWriter, r *http.Request) {
+		handler.UpdatePostVoteHandler(w, r, rootContext)
+	})
 
 
     http.ListenAndServe(":5678", nil)
