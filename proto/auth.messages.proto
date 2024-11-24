@@ -17,7 +17,6 @@ message Claims {
     int64 not_before = 9;
 }
 
-
 // Register messages
 message RegisterRequest {
   string username = 1;
