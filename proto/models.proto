@@ -44,3 +44,30 @@ message Message {
     google.protobuf.Timestamp created_at = 5;
 }
 
+message Post {
+    uint64 id = 1;
+    string title = 2;
+    string content = 3;
+    uint64 author_id = 4;
+    uint64 subreddit_id = 5;
+    int64 score = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+    User author = 9;
+    Subreddit subreddit = 10;
+    repeated Comment comments = 11;
+}
+
+message Comment {
+    uint64 id = 1;
+    string content = 2;
+    uint64 author_id = 3;
+    uint64 post_id = 4;
+    uint64 parent_id = 5;  // For nested comments
+    int64 score = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+    User author = 9;
+    Post post = 10;
+    repeated Comment replies = 11;
+}

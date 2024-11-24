@@ -16,6 +16,7 @@ type Subreddit struct {
 	CreatorID       uint64 `gorm:"not null"` // Changed to uint to match gorm.Model ID type
 	Creator         User   `gorm:"foreignKey:CreatorID"`
 	Subscribers     []User `gorm:"many2many:user_subreddit_subscriptions"`
+	Posts           []Post `gorm:"foreignKey:SubredditID"`
 	SubscriberCount int64  `gorm:"default:0"`
 }
 

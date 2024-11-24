@@ -23,6 +23,8 @@ type User struct {
 	// Relationships
 	CreatedSubreddits []Subreddit `gorm:"foreignKey:CreatorID"`
 	Subscriptions     []Subreddit `gorm:"many2many:user_subreddit_subscriptions"`
+	Posts             []Post      `gorm:"foreignKey:AuthorID"`
+	Comments          []Comment   `gorm:"foreignKey:AuthorID"`
 }
 
 func (u *User) ToProto() *proto.User {
