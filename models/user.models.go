@@ -5,18 +5,53 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/nitingoyal0996/reddit-clone/proto"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
+	ID        uint64    `gorm:"primaryKey;autoIncrement"`
 	Username  string    `gorm:"unique;not null"`
 	Email     string    `gorm:"unique;not null"`
 	Password  string    `gorm:"not null"`
-	Karma     int       `gorm:"default:0"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
+	Karma     int64     `gorm:"default:0"`
 	LastLogin time.Time `gorm:"autoUpdateTime"`
+
+	// Relationships
+	CreatedSubreddits []Subreddit `gorm:"foreignKey:CreatorID"`
+	Subscriptions     []Subreddit `gorm:"many2many:user_subreddit_subscriptions"`
+}
+
+func (u *User) ToProto() *proto.User {
+	userProto := &proto.User{
+		Id:        u.ID,
+		Username:  u.Username,
+		Email:     u.Email,
+		Karma:     u.Karma,
+		CreatedAt: timestamppb.New(u.CreatedAt),
+		LastLogin: timestamppb.New(u.LastLogin),
+	}
+
+	// Convert created subreddits
+	if len(u.CreatedSubreddits) > 0 {
+		userProto.CreatedSubreddits = make([]*proto.Subreddit, len(u.CreatedSubreddits))
+		for i, subreddit := range u.CreatedSubreddits {
+			userProto.CreatedSubreddits[i] = subreddit.ToProto()
+		}
+	}
+
+	// Convert subscriptions
+	if len(u.Subscriptions) > 0 {
+		userProto.Subscriptions = make([]*proto.Subreddit, len(u.Subscriptions))
+		for i, subscription := range u.Subscriptions {
+			userProto.Subscriptions[i] = subscription.ToProto()
+		}
+	}
+
+	return userProto
 }
 
 func (u *User) Validate() error {

@@ -9,6 +9,7 @@ import (
 	"github.com/nitingoyal0996/reddit-clone/proto"
 	"github.com/nitingoyal0996/reddit-clone/repositories"
 	"github.com/nitingoyal0996/reddit-clone/services"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type UserActor struct {
@@ -53,7 +54,7 @@ func (user *UserActor) SendMessage(context actor.Context, actorMsg *proto.SendMe
 		context.Respond(&proto.SendMessageResponse{Error: "Invalid token"})
 	} else {
 		fmt.Println("Token validated successfully")
-		if err := user.messageService.SendMessage(actorMsg.Text, uint(validationResponse.Claims.UserId), uint(actorMsg.ToId)); err != nil {
+		if err := user.messageService.SendMessage(actorMsg.Text, validationResponse.Claims.UserId, actorMsg.ToId); err != nil {
 			fmt.Printf("%+v\n", err)
 			context.Respond(&proto.SendMessageResponse{Error: err.Error()})
 		} else {
@@ -74,9 +75,9 @@ func (user *UserActor) GetMessages(context actor.Context, actorMsg *proto.GetMes
 	if !validationResponse.Valid || !ok {
 		context.Respond(&proto.SendMessageResponse{Error: "Invalid token"})
 	} else {
-		if userMessages, err := user.messageService.GetMessages(uint(validationResponse.Claims.UserId), uint(actorMsg.ToId)); err != nil {
+		if userMessages, err := user.messageService.GetMessages(validationResponse.Claims.UserId, actorMsg.ToId); err != nil {
 			fmt.Printf("Error getting messages: %v\n", err)
-			fmt.Printf("User ID: %v, To ID: %v\n", uint(validationResponse.Claims.UserId), uint(actorMsg.ToId))
+			fmt.Printf("User ID: %v, To ID: %v\n", validationResponse.Claims.UserId, actorMsg.ToId)
 			context.Respond(&proto.GetMessagesResponse{Error: err.Error()})
 		} else {
 			protoMessages := make([]*proto.Message, len(userMessages))
@@ -86,7 +87,7 @@ func (user *UserActor) GetMessages(context actor.Context, actorMsg *proto.GetMes
 					Text:      msg.Text,
 					FromId:    uint64(msg.FromId),
 					ToId:      uint64(msg.ToId),
-					CreatedAt: msg.CreatedAt,
+					CreatedAt: timestamppb.New(msg.CreatedAt),
 				}
 			}
 			context.Respond(&proto.GetMessagesResponse{Messages: protoMessages, Error: ""})

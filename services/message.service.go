@@ -15,10 +15,10 @@ func NewMessageService(msgRepo repositories.MessageRepository) *MessageService {
 	}
 }
 
-func (ms *MessageService) SendMessage(text string, fromId, toId uint) error {
+func (ms *MessageService) SendMessage(text string, fromId, toId uint64) error {
 	return ms.msgRepo.SendMessage(text, fromId, toId)
 }
 
-func (ms *MessageService) GetMessages(fromId uint, toId uint) ([]*models.Message, error) {
+func (ms *MessageService) GetMessages(fromId, toId uint64) ([]*models.Message, error) {
 	return ms.msgRepo.GetMessages(fromId, toId)
 }
