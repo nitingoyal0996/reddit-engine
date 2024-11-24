@@ -1,0 +1,62 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "github.com/nitingoyal0996/reddit-engine/engine/proto";
+
+import "models.proto";
+
+// Create Comment
+message CreateCommentRequest {
+    string token = 1;
+    string content = 2;
+    uint64 user_id = 3;
+    uint64 post_id = 4;
+    optional uint64 parent_id = 5;
+}
+
+message CreateCommentResponse {
+    string error = 2;
+}
+
+message GetCommentRequest {
+    string token = 1;
+    uint64 comment_id = 2;
+}
+
+message GetCommentResponse {
+    Comment comment = 1;
+    string error = 2;
+}
+
+message GetCommentsByPostRequest {
+    string token = 1;
+    uint64 post_id = 2;
+    int32 limit = 3;
+    int32 offset = 4;
+}
+
+message GetCommentsByPostResponse {
+    repeated Comment comments = 1;
+    string error = 2;
+}
+
+// Get Comment Thread
+message GetCommentThreadRequest {
+    string token = 1;
+    uint64 post_id = 2;
+}
+
+message GetCommentThreadResponse {
+    repeated Comment comments = 1;
+    string error = 3;
+}
+
+message UpdateCommentVoteRequest {
+    string token = 1;
+    uint64 comment_id = 2;
+    bool upvote = 3;
+}
+
+message UpdateCommentVoteResponse {
+    string error = 1;
+}

@@ -36,6 +36,7 @@ func main() {
 	msgRepo := repositories.NewMessageRepository(db)
 	subRepo := repositories.NewSubredditRepository(db)
 	postRepo := repositories.NewPostRepository(db)
+	commentRepo := repositories.NewCommentRepository(db)
 	// setup actor system
 	authProps := actor.PropsFromProducer(func() actor.Actor {
         return actors.NewAuthActor(userRepo, "chanduKeChacha")
@@ -52,15 +53,19 @@ func main() {
 	postProps := actor.PropsFromProducer(func()actor.Actor {
 		return actors.NewPostActor(postRepo)
 	})
+	commentProps := actor.PropsFromProducer(func()actor.Actor {
+		return actors.NewCommentActor(commentRepo)
+	})
 	// .. add more actor props here
 	authKind := cluster.NewKind("Auth", authProps)
 	karmaKind := cluster.NewKind("Karma", karmaProps)
 	userKind := cluster.NewKind("User", userProps)
 	subKind := cluster.NewKind("Subreddit", subProps)
 	postKind := cluster.NewKind("Post", postProps)
+	commentKind := cluster.NewKind("Comment", commentProps)
 	// .. add more actor props here
 
-	kinds := []*cluster.Kind{authKind, karmaKind, userKind, subKind, postKind}	// append more kinds here
+	kinds := []*cluster.Kind{authKind, karmaKind, userKind, subKind, postKind, commentKind}	// append more kinds here
 	// Distributed hash lookup
 	lookup := disthash.New()
 	
@@ -122,7 +127,12 @@ func main() {
 	http.HandleFunc("/post/upvote", func(w http.ResponseWriter, r *http.Request) {
 		handler.UpdatePostVoteHandler(w, r, rootContext)
 	})
-
+	http.HandleFunc("/comment/create", func(w http.ResponseWriter, r *http.Request) {
+		handler.CreateCommentHandler(w, r, rootContext)
+	})
+	http.HandleFunc("/comment/get", func(w http.ResponseWriter, r *http.Request) {
+		handler.GetCommentHandler(w, r, rootContext)
+	})
 
     http.ListenAndServe(":5678", nil)
 
