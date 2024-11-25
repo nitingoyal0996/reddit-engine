@@ -89,6 +89,9 @@ func main() {
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
 		handler.LoginHandler(w, r, rootContext)
 	})
+	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		handler.LogoutHandler(w, r, rootContext)
+	})
 	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
 		handler.KarmaHandler(w, r, rootContext)
 	})

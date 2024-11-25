@@ -51,3 +51,10 @@ message TokenValidationResponse {
   Claims claims = 2;
   string error = 3;
 }
+message LogoutRequest {
+  string token = 1;
+}
+
+message LogoutResponse {
+  string error = 1;
+}

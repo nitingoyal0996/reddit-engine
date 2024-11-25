@@ -13,6 +13,7 @@ import (
 type AuthService struct {
 	userRepo 	repositories.UserRepository
 	jwtSecret	[]byte
+	blockedTokens []string
 }
 
 func NewAuthService(userRepo repositories.UserRepository, jwtSecret string) *AuthService {
@@ -55,13 +56,20 @@ func (s *AuthService) GenerateToken(user *models.User) (string, error) {
 }
 
 func (s *AuthService) ValidateToken(tokenString string) (*messages.Claims, error) {
+	// Check if the token is in the blocked tokens list
+	for _, blockedToken := range s.blockedTokens {
+		if blockedToken == tokenString {
+			return nil, errors.New("invalid token")
+		}
+	}
+
 	claims := &messages.Claims{}
 	token, err := jwt.ParseWithClaims(
-						tokenString, 
-						claims, 
-						func(token *jwt.Token) (interface{}, error) {
-							return s.jwtSecret, nil
-						})
+		tokenString,
+		claims,
+		func(token *jwt.Token) (interface{}, error) {
+			return s.jwtSecret, nil
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -83,4 +91,10 @@ func (s *AuthService) Login(username, password string) (string, error) {
 		return "", err
 	}
 	return token, nil
+}
+
+// logout
+func (s *AuthService) Logout(token string) error {
+	s.blockedTokens = append(s.blockedTokens, token)
+	return nil
 }

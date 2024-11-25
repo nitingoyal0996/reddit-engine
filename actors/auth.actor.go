@@ -34,6 +34,8 @@ func (auth *AuthActor) Receive(context actor.Context) {
         auth.RegisterNewUser(context, actorMsg)
     case *proto.LoginRequest:
         auth.LoginUser(context, actorMsg)
+    case *proto.LogoutRequest:
+        auth.LogoutUser(context, actorMsg)
     case *proto.TokenValidationRequest:
         auth.ValidateToken(context, actorMsg)
     default:
@@ -82,5 +84,14 @@ func (auth *AuthActor) ValidateToken(context actor.Context, actorMsg *proto.Toke
             // .. add more fields here
         }
         context.Respond(&proto.TokenValidationResponse{Valid: true, Claims: claimsProto})
+    }
+}
+
+func (auth *AuthActor) LogoutUser(context actor.Context, actorMsg *proto.LogoutRequest) {
+    err := auth.service.Logout(actorMsg.Token)
+    if err != nil {
+        context.Respond(&proto.LogoutResponse{Error: err.Error()})
+    } else {
+        context.Respond(&proto.LogoutResponse{})
     }
 }

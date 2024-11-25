@@ -74,3 +74,35 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request, rootConte
 		return
 	}
 }
+
+// logout handler
+func (h *Handler) LogoutHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+	var input proto.LogoutRequest
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	authActor := cluster.GetCluster(rootContext.ActorSystem()).Get("auth", "Auth")
+	future := rootContext.RequestFuture(authActor, &input, 5*time.Second)
+	result, err := future.Result()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	logoutResponse, ok := result.(*proto.LogoutResponse)
+	if !ok {
+		http.Error(w, "Invalid response from actor", http.StatusInternalServerError)
+		return
+	}
+	if logoutResponse.Error != "" {
+		http.Error(w, logoutResponse.Error, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(logoutResponse); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
