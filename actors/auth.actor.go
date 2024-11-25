@@ -92,6 +92,6 @@ func (auth *AuthActor) LogoutUser(context actor.Context, actorMsg *proto.LogoutR
     if err != nil {
         context.Respond(&proto.LogoutResponse{Error: err.Error()})
     } else {
-        context.Respond(&proto.LogoutResponse{})
+        context.Respond(&proto.LogoutResponse{Error: ""})
     }
 }
