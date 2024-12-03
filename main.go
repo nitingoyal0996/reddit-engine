@@ -80,8 +80,8 @@ func main() {
     defer cluster.Shutdown(true)
 
 	rootContext := system.Root
+    handler := handlers.NewHandler(rootContext)
 	// declare HTTP handler to use cluster instead of actor system
-    handler := handlers.NewHandler(cluster)
 
 	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
 		handler.RegisterHandler(w, r, rootContext)
@@ -138,6 +138,8 @@ func main() {
 	})
 
     http.ListenAndServe(":5678", nil)
+
+	// router := mux.NewRouter()
 
 	// Run till a signal comes
 	finish := make(chan os.Signal, 1)

@@ -1,13 +1,13 @@
 package handlers
 
-import "github.com/asynkron/protoactor-go/cluster"
+import "github.com/asynkron/protoactor-go/actor"
 
 type Handler struct {
-	Cluster *cluster.Cluster
+	rootContext *actor.RootContext
 }
 
-func NewHandler(clusterProvider *cluster.Cluster) *Handler {
+func NewHandler(rootContext *actor.RootContext) *Handler {
 	return &Handler{
-		Cluster: clusterProvider,
+		rootContext: rootContext,
 	}
 }
