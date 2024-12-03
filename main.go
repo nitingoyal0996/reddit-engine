@@ -12,10 +12,12 @@ import (
 	"github.com/asynkron/protoactor-go/cluster/clusterproviders/automanaged"
 	"github.com/asynkron/protoactor-go/cluster/identitylookup/disthash"
 	"github.com/asynkron/protoactor-go/remote"
+	"github.com/gorilla/mux"
 	"github.com/nitingoyal0996/reddit-clone/actors"
 	"github.com/nitingoyal0996/reddit-clone/database"
 	"github.com/nitingoyal0996/reddit-clone/handlers"
 	"github.com/nitingoyal0996/reddit-clone/repositories"
+	"github.com/nitingoyal0996/reddit-clone/routes"
 )
 
 func main() {
@@ -79,67 +81,17 @@ func main() {
 	// shutdown later
     defer cluster.Shutdown(true)
 
+
+	// initialize http server
 	rootContext := system.Root
     handler := handlers.NewHandler(rootContext)
-	// declare HTTP handler to use cluster instead of actor system
-
-	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
-		handler.RegisterHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-		handler.LoginHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
-		handler.LogoutHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
-		handler.KarmaHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/user/messages", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("Message request received: %s\n", r.Method)
-		if r.Method == http.MethodGet {
-			handler.GetMessagesHandler(w, r, rootContext)
-		} else if r.Method == http.MethodPost {
-			handler.SendMessageHandler(w, r, rootContext)
-		} else {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	})
-	http.HandleFunc("/user/subreddits", func(w http.ResponseWriter, r *http.Request) {
-		handler.CreateSubredditHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/user/subreddits/subscribe", func(w http.ResponseWriter, r *http.Request) {
-		handler.SubscribeSubredditHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/user/subreddits/unsubscribe", func(w http.ResponseWriter, r *http.Request) {
-		handler.UnsubscribeSubredditHandler(w, r, rootContext)
-	})
-
-	http.HandleFunc("/post/create", func(w http.ResponseWriter, r *http.Request) {
-		handler.CreatePostHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/post/get", func(w http.ResponseWriter, r *http.Request) {
-		handler.GetPostHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/post/get/user", func(w http.ResponseWriter, r *http.Request) {
-		handler.GetPostsByUserHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/post/get/subreddit", func(w http.ResponseWriter, r *http.Request) {
-		handler.GetPostsBySubredditHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/post/upvote", func(w http.ResponseWriter, r *http.Request) {
-		handler.UpdatePostVoteHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/comment/create", func(w http.ResponseWriter, r *http.Request) {
-		handler.CreateCommentHandler(w, r, rootContext)
-	})
-	http.HandleFunc("/comment/get", func(w http.ResponseWriter, r *http.Request) {
-		handler.GetCommentHandler(w, r, rootContext)
-	})
-
-    http.ListenAndServe(":5678", nil)
-
-	// router := mux.NewRouter()
+	router := mux.NewRouter()
+	routes.AuthRoutes(router, handler)
+	routes.UserRoutes(router, handler)
+	routes.MessageRoutes(router, handler)
+	routes.SubredditRoutes(router, handler)
+	routes.PostRoutes(router, handler)
+    http.ListenAndServe(":5678", router)
 
 	// Run till a signal comes
 	finish := make(chan os.Signal, 1)

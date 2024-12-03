@@ -34,6 +34,9 @@ func (h *Handler) CreateSubredditHandler (w http.ResponseWriter, r *http.Request
 	
 }
 
+// TODO: implement handler
+func (h *Handler) GetSubredditHandler(w http.ResponseWriter, r *http.Request) {}
+
 func (h *Handler) SubscribeSubredditHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.SubscriptionRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
