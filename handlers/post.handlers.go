@@ -6,21 +6,20 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/cluster"
 	"github.com/nitingoyal0996/reddit-clone/proto"
 )
 
 
-func (h *Handler) CreatePostHandler (w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) CreatePostHandler (w http.ResponseWriter, r *http.Request) {
 	print("CreatePostHandler called")
 	var input proto.CreatePostRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	subActor := cluster.GetCluster(rootContext.ActorSystem()).Get("post", "Post")
-	future := rootContext.RequestFuture(subActor, &input, 5*time.Second)
+	subActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("post", "Post")
+	future := h.rootContext.RequestFuture(subActor, &input, 5*time.Second)
 	fmt.Printf("CreatePostHandler: %v\n", future)
 	res, err := future.Result()
 	if err != nil {
@@ -36,13 +35,13 @@ func (h *Handler) CreatePostHandler (w http.ResponseWriter, r *http.Request, roo
 	
 }
 
-func (h *Handler) GetPostHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.GetPostRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	postActor := cluster.GetCluster(rootContext.ActorSystem()).Get("post", "Post")
-	future := rootContext.RequestFuture(postActor, &input, 5*time.Second)
+	postActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("post", "Post")
+	future := h.rootContext.RequestFuture(postActor, &input, 5*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -59,14 +58,14 @@ func (h *Handler) GetPostHandler(w http.ResponseWriter, r *http.Request, rootCon
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) GetPostsBySubredditHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) GetPostsBySubredditHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.GetPostsBySubredditRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		print("GetPostsBySubredditHandler: %v\n", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	postActor := cluster.GetCluster(rootContext.ActorSystem()).Get("post", "Post")
-	future := rootContext.RequestFuture(postActor, &input, 5*time.Second)
+	postActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("post", "Post")
+	future := h.rootContext.RequestFuture(postActor, &input, 5*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -83,13 +82,13 @@ func (h *Handler) GetPostsBySubredditHandler(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) GetPostsByUserHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) GetPostsByUserHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.GetPostByUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	postActor := cluster.GetCluster(rootContext.ActorSystem()).Get("post", "Post")
-	future := rootContext.RequestFuture(postActor, &input, 5*time.Second)
+	postActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("post", "Post")
+	future := h.rootContext.RequestFuture(postActor, &input, 5*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -106,13 +105,13 @@ func (h *Handler) GetPostsByUserHandler(w http.ResponseWriter, r *http.Request, 
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *Handler) UpdatePostVoteHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) UpdatePostVoteHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.UpdatePostVoteRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	postActor := cluster.GetCluster(rootContext.ActorSystem()).Get("post", "Post")
-	future := rootContext.RequestFuture(postActor, &input, 5*time.Second)
+	postActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("post", "Post")
+	future := h.rootContext.RequestFuture(postActor, &input, 5*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -6,19 +6,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/cluster"
 	"github.com/nitingoyal0996/reddit-clone/proto"
 )
 
-func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	authActor := cluster.GetCluster(rootContext.ActorSystem()).Get("auth", "Auth")
-    future := rootContext.RequestFuture(authActor, &input, 5*time.Second)
+	authActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("auth", "Auth")
+    future := h.rootContext.RequestFuture(authActor, &input, 5*time.Second)
 	result, err := future.Result()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)
@@ -44,14 +43,14 @@ func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request, rootCo
 	fmt.Printf("User registered. ID: %d, Username: %s\n", registerResponse.Id, registerResponse.Username)
 }
 
-func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	authActor := cluster.GetCluster(rootContext.ActorSystem()).Get("auth", "Auth")
-    future := rootContext.RequestFuture(authActor, &input, 5*time.Second)
+	authActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("auth", "Auth")
+    future := h.rootContext.RequestFuture(authActor, &input, 5*time.Second)
 	result, err := future.Result()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)
@@ -76,14 +75,14 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request, rootConte
 }
 
 // logout handler
-func (h *Handler) LogoutHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.LogoutRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	authActor := cluster.GetCluster(rootContext.ActorSystem()).Get("auth", "Auth")
-	future := rootContext.RequestFuture(authActor, &input, 5*time.Second)
+	authActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("auth", "Auth")
+	future := h.rootContext.RequestFuture(authActor, &input, 5*time.Second)
 	result, err := future.Result()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)

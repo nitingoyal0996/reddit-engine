@@ -5,19 +5,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/cluster"
 	"github.com/nitingoyal0996/reddit-clone/proto"
 )
 
-func (h *Handler) CreateCommentHandler (w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) CreateCommentHandler (w http.ResponseWriter, r *http.Request) {
 	var input proto.CreateCommentRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	commentActor := cluster.GetCluster(rootContext.ActorSystem()).Get("comment", "Comment")
-	future := rootContext.RequestFuture(commentActor, &input, 5*time.Second)
+	commentActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("comment", "Comment")
+	future := h.rootContext.RequestFuture(commentActor, &input, 5*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -32,13 +31,13 @@ func (h *Handler) CreateCommentHandler (w http.ResponseWriter, r *http.Request, 
 	
 }
 
-func (h *Handler) GetCommentHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) GetCommentHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.GetCommentRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-	commentActor := cluster.GetCluster(rootContext.ActorSystem()).Get("comment", "Comment")
-	future := rootContext.RequestFuture(commentActor, &input, 5*time.Second)
+	commentActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("comment", "Comment")
+	future := h.rootContext.RequestFuture(commentActor, &input, 5*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

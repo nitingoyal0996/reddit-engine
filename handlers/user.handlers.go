@@ -5,19 +5,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/asynkron/protoactor-go/actor"
 	"github.com/asynkron/protoactor-go/cluster"
 	"github.com/nitingoyal0996/reddit-clone/proto"
 )
 
-func (h *Handler) SendMessageHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h *Handler) SendMessageHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.SendMessageRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	userActor := cluster.GetCluster(rootContext.ActorSystem()).Get("user", "User")
-	future := rootContext.RequestFuture(userActor, &input, 5*time.Second)
+	userActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("user", "User")
+	future := h.rootContext.RequestFuture(userActor, &input, 5*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -32,14 +31,14 @@ func (h *Handler) SendMessageHandler(w http.ResponseWriter, r *http.Request, roo
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h* Handler) GetMessagesHandler(w http.ResponseWriter, r *http.Request, rootContext *actor.RootContext) {
+func (h* Handler) GetMessagesHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.GetMessagesRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	userActor := cluster.GetCluster(rootContext.ActorSystem()).Get("user", "User")
-	future := rootContext.RequestFuture(userActor, &input, 1*time.Second)
+	userActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("user", "User")
+	future := h.rootContext.RequestFuture(userActor, &input, 1*time.Second)
 	res, err := future.Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
