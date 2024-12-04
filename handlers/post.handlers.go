@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/asynkron/protoactor-go/cluster"
+	"github.com/gorilla/mux"
 	"github.com/nitingoyal0996/reddit-clone/proto"
 )
 
@@ -37,8 +38,10 @@ func (h *Handler) CreatePostHandler (w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetPostHandler(w http.ResponseWriter, r *http.Request) {
 	var input proto.GetPostRequest
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	id := mux.Vars(r)["id"]
+	if id == "" {
+		http.Error(w, "Missing id in URL", http.StatusBadRequest)
+		return
 	}
 	postActor := cluster.GetCluster(h.rootContext.ActorSystem()).Get("post", "Post")
 	future := h.rootContext.RequestFuture(postActor, &input, 5*time.Second)
