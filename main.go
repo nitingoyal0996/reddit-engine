@@ -39,21 +39,21 @@ func main() {
 	commentRepo := repositories.NewCommentRepository(db)
 	// setup actor system
 	authProps := actor.PropsFromProducer(func() actor.Actor {
-        return actors.NewAuthActor(userRepo, "chanduKeChacha")
-    })
+		return actors.NewAuthActor(userRepo, "chanduKeChacha")
+	})
 	karmaProps := actor.PropsFromProducer(func() actor.Actor {
 		return actors.NewKarmaActor(userRepo)
 	})
-	userProps := actor.PropsFromProducer(func()actor.Actor {
+	userProps := actor.PropsFromProducer(func() actor.Actor {
 		return actors.NewUserActor(msgRepo)
 	})
-	subProps := actor.PropsFromProducer(func()actor.Actor {
+	subProps := actor.PropsFromProducer(func() actor.Actor {
 		return actors.NewSubredditActor(subRepo)
 	})
-	postProps := actor.PropsFromProducer(func()actor.Actor {
+	postProps := actor.PropsFromProducer(func() actor.Actor {
 		return actors.NewPostActor(postRepo)
 	})
-	commentProps := actor.PropsFromProducer(func()actor.Actor {
+	commentProps := actor.PropsFromProducer(func() actor.Actor {
 		return actors.NewCommentActor(commentRepo)
 	})
 	// .. add more actor props here
@@ -65,37 +65,42 @@ func main() {
 	commentKind := cluster.NewKind("Comment", commentProps)
 	// .. add more actor props here
 
-	kinds := []*cluster.Kind{authKind, karmaKind, userKind, subKind, postKind, commentKind}	// append more kinds here
+	kinds := []*cluster.Kind{authKind, karmaKind, userKind, subKind, postKind, commentKind} // append more kinds here
 	// Distributed hash lookup
 	lookup := disthash.New()
-	
-    // New cluster definition
+
+	// New cluster definition
 	config := remote.Configure("127.0.0.1", 8080)
 	provider := automanaged.NewWithConfig(1*time.Second, 6331, "localhost:6331")
 	clusterConfig := cluster.Configure("reddit-cluster", provider, lookup, config, cluster.WithKinds(kinds...))
 	system := actor.NewActorSystem()
 	cluster := cluster.New(system, clusterConfig)
-    cluster.StartMember()
+	cluster.StartMember()
 	// shutdown later
-    defer cluster.Shutdown(true)
+	defer cluster.Shutdown(true)
 
 	rootContext := system.Root
 	// declare HTTP handler to use cluster instead of actor system
-    handler := handlers.NewHandler(cluster)
+	handler := handlers.NewHandler(cluster)
 
 	http.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.RegisterHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.LoginHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/logout", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.LogoutHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/user/karma", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.KarmaHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/user/messages", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		fmt.Printf("Message request received: %s\n", r.Method)
 		if r.Method == http.MethodGet {
 			handler.GetMessagesHandler(w, r, rootContext)
@@ -106,38 +111,44 @@ func main() {
 		}
 	})
 	http.HandleFunc("/user/subreddits", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.CreateSubredditHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/user/subreddits/subscribe", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.SubscribeSubredditHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/user/subreddits/unsubscribe", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.UnsubscribeSubredditHandler(w, r, rootContext)
 	})
 
 	http.HandleFunc("/post/create", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.CreatePostHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/post/get", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.GetPostHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/post/get/user", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.GetPostsByUserHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/post/get/subreddit", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.GetPostsBySubredditHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/post/upvote", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.UpdatePostVoteHandler(w, r, rootContext)
 	})
 	http.HandleFunc("/comment/create", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Request received: %s %s\n", r.Method, r.URL.Path)
 		handler.CreateCommentHandler(w, r, rootContext)
 	})
-	http.HandleFunc("/comment/get", func(w http.ResponseWriter, r *http.Request) {
-		handler.GetCommentHandler(w, r, rootContext)
-	})
 
-    http.ListenAndServe(":5678", nil)
+	http.ListenAndServe(":5678", nil)
 
 	// Run till a signal comes
 	finish := make(chan os.Signal, 1)

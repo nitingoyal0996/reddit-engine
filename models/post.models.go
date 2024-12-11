@@ -12,6 +12,7 @@ type Post struct {
 	CreatedAt    time.Time `gorm:"not null"`
 	UpdatedAt    time.Time `gorm:"not null"`
 	CommentCount int64     `gorm:"default:0"`
+	Votes        int64     `gorm:"default:0"`
 
 	// Relationships
 	Author    User      `gorm:"foreignKey:AuthorID"`

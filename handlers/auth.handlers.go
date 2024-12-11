@@ -57,14 +57,20 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request, rootConte
 		http.Error(w, fmt.Sprintf("Error getting response: %v", err), http.StatusInternalServerError)
 		return
 	}
-
 	loginResponse, ok := result.(*proto.LoginResponse)
+
 	if !ok {
 		http.Error(w, "Invalid response from actor", http.StatusInternalServerError)
 		return
 	}
 	if loginResponse.Error != "" {
-		http.Error(w, loginResponse.Error, http.StatusInternalServerError)
+		if loginResponse.Error == "user not found" {
+			http.Error(w, loginResponse.Error, http.StatusNotFound)
+		} else if loginResponse.Error == "invalid password" {
+			http.Error(w, loginResponse.Error, http.StatusUnauthorized)
+		} else {
+			http.Error(w, loginResponse.Error, http.StatusInternalServerError)
+		}
 		return
 	}
 

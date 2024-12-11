@@ -65,10 +65,18 @@ func (auth *AuthActor) RegisterNewUser(context actor.Context, actorMsg *proto.Re
 
 func (auth *AuthActor) LoginUser(context actor.Context, actorMsg *proto.LoginRequest) {
     token, err := auth.service.Login(actorMsg.Username, actorMsg.Password)
-    if err != nil {
-        context.Respond(&proto.LoginResponse{Error: err.Error()})
+    response := &proto.LoginResponse{
+        Token: "",
+        Error: "",
     }
-    context.Respond(&proto.LoginResponse{Token: token})
+    if err != nil {
+        fmt.Printf("Login failed: %v\n", err)
+        response.Error = err.Error()
+    } else {
+        response.Token = token
+    }
+    fmt.Printf("Login response: %+v\n", response)
+    context.Respond(response)
 }
 
 func (auth *AuthActor) ValidateToken(context actor.Context, actorMsg *proto.TokenValidationRequest) {

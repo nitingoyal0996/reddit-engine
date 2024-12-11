@@ -68,7 +68,8 @@ func (r *SqliteUserRepository) CheckPassword(username string, password string) (
 	user, err := r.GetUserByUsername(username); if err != nil {
 		return nil, errors.New("user not found")
 	}
-	if !user.CheckPassword(password) {
+	isValid, err := user.CheckPassword(password)
+	if err != nil || !isValid {
 		return nil, errors.New("invalid password")
 	}
 	// save timestamp of last login

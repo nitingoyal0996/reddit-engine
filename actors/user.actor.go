@@ -75,11 +75,13 @@ func (user *UserActor) GetMessages(context actor.Context, actorMsg *proto.GetMes
 	if !validationResponse.Valid || !ok {
 		context.Respond(&proto.SendMessageResponse{Error: "Invalid token"})
 	} else {
+		print("\nToken validated successfully\n")
 		if userMessages, err := user.messageService.GetMessages(validationResponse.Claims.UserId, actorMsg.ToId); err != nil {
 			fmt.Printf("Error getting messages: %v\n", err)
 			fmt.Printf("User ID: %v, To ID: %v\n", validationResponse.Claims.UserId, actorMsg.ToId)
 			context.Respond(&proto.GetMessagesResponse{Error: err.Error()})
 		} else {
+			print("Messages retrieved successfully\n")
 			protoMessages := make([]*proto.Message, len(userMessages))
 			for i, msg := range userMessages {
 				protoMessages[i] = &proto.Message{

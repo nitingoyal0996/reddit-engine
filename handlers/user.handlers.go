@@ -46,6 +46,7 @@ func (h* Handler) GetMessagesHandler(w http.ResponseWriter, r *http.Request, roo
 		return
 	}
 	response, ok := res.(*proto.GetMessagesResponse)
+	// print the response
 	if ok && response.Error != "" {
 		http.Error(w, response.Error, http.StatusInternalServerError)
 		return

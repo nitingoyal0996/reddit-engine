@@ -75,7 +75,7 @@ func (h *Handler) GetPostsBySubredditHandler(w http.ResponseWriter, r *http.Requ
 
 	postResponse, ok := res.(*proto.GetPostsBySubredditResponse)
 	if ok && postResponse == nil {
-		http.Error(w, "Post creation failed.", http.StatusInternalServerError)
+		http.Error(w, "Failed to fetch posts.", http.StatusInternalServerError)
 		return
 	} else {
 		json.NewEncoder(w).Encode(postResponse)

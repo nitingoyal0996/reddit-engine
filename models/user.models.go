@@ -81,9 +81,12 @@ func (u *User) HashPassword() error {
 	return nil
 }
 
-func (u *User) CheckPassword(providedPassword string) bool {
+func (u *User) CheckPassword(providedPassword string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(providedPassword))
-	return err == nil
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (u *User) SafeUser() map[string]interface{} {

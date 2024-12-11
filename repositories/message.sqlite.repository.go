@@ -24,7 +24,7 @@ func (r *SqliteMessageRepository) SendMessage(text string, fromId, toId uint64) 
 
 func (r *SqliteMessageRepository) GetMessages(fromId, toId uint64) ([]*models.Message, error) {
 	var messages []*models.Message
-	if err := r.db.Where("from_id = ? AND to_id = ?", fromId, toId).Find(&messages).Error; err != nil {
+	if err := r.db.Where("from_id = ? AND to_id = ? OR from_id = ? AND to_id = ?", fromId, toId, toId, fromId).Order("created_at desc").Find(&messages).Error; err != nil {
 		return nil, err
 	}
 	return messages, nil

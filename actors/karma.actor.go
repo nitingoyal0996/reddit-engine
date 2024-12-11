@@ -15,7 +15,7 @@ type KarmaActor struct {
 	karmaService *services.KarmaService
 }
 
-func NewKarmaActor(userRepo *repositories.SqliteUserRepository) *KarmaActor {
+func NewKarmaActor(userRepo repositories.UserRepository) *KarmaActor {
 	return &KarmaActor{
 		karmaService: services.NewKarmaService(userRepo),
 	}
@@ -52,7 +52,6 @@ func (karma *KarmaActor) UpdateKarma(context actor.Context, actorMsg *proto.Karm
 		context.Respond(&proto.KarmaResponse{Error: "Invalid token"})
 	} else {
 		fmt.Println("Token validated successfully")
-		// update karma
 		if err := karma.karmaService.UpdateKarma(uint(actorMsg.UserId), int(actorMsg.Amount)); err != nil {
 			context.Respond(&proto.KarmaResponse{Error: err.Error()})
 		}
