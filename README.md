@@ -26,7 +26,7 @@ University of Florida
 
 ## Overview
 
-The **Nakali Reddit** project simulates a distributed Reddit-like system. The system comprises two primary components:
+The **Rebbit Engine** project simulates a distributed Reddit-like system. The system comprises two primary components:
 
 1. **Engine**
 2. **Client**
@@ -163,4 +163,4 @@ the default connection duration is set to 5 seconds, it could be changed and inc
 
 ## Conclusion
 
-The **Nakali Reddit** project effectively demonstrates the design and implementation of a distributed system using the actor model. By leveraging the **Proto.actor** framework, the system achieves scalability, fault tolerance, and high concurrency, making it suitable for handling real-world workloads. The modular architecture—comprising data, service, actor, and network layers—ensures extensibility and maintainability. Through comprehensive simulations, the project validates core functionalities such as user registration, subreddit management, and user interactions, showcasing the potential of distributed actor-based systems in building robust, scalable applications. This project serves as a foundational model for developing distributed platforms with high performance and reliability.
+The **Rabbit Engine** project effectively demonstrates the design and implementation of a distributed system using the actor model. By leveraging the **Proto.actor** framework, the system achieves scalability, fault tolerance, and high concurrency, making it suitable for handling real-world workloads. The modular architecture—comprising data, service, actor, and network layers—ensures extensibility and maintainability. Through comprehensive simulations, the project validates core functionalities such as user registration, subreddit management, and user interactions, showcasing the potential of distributed actor-based systems in building robust, scalable applications. This project serves as a foundational model for developing distributed platforms with high performance and reliability.
